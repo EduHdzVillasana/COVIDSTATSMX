@@ -1,0 +1,3 @@
+El csv que está aqui, esta actualizado todos los días, solo se modificó su codificación a utf-8 para poder ser leido en los programas de análisis.
+Fuente de csv´s: https://datos.gob.mx/busca/dataset/informacion-referente-a-casos-covid-19-en-mexico
+Se actualiza diariamente despues de la conferencia de prense de las 7:00 pm
