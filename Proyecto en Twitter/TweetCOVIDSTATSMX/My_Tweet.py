@@ -4,7 +4,7 @@ import json
 class My_Tweet:
     def post (info,pathImage):
         # Get credentials froma a json file
-        mainpath = "../../TweetApiCredentials"
+        mainpath = "../../../TweetApiCredentials"
         filepath = "TwitterApiKeys.json"
         with open(os.path.join(mainpath,filepath)) as file:
             credentials = json.load(file)
