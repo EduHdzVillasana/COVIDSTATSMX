@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import time
 import sys
 
-sys.path.insert(0,'TweetCOVIDSTATSMX')
-from My_Tweet import My_Tweet
 
 # Class to store covid cases by state data
 # Entity = State or City (future)
@@ -236,6 +234,8 @@ def createGraph (name, casesBD_df, date):
     plt.savefig("Graficas/" + date + "/"+ name +" " + date + ".png")
 
 if __name__ == '__main__':
+    sys.path.insert(0,'TweetCOVIDSTATSMX')
+    from My_Tweet import My_Tweet
     covid_df, update_date = getDataFrame()
     if (covid_df is not None):
         dates = getDateList(update_date)
