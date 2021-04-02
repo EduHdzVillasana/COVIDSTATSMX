@@ -49,7 +49,7 @@ def addResult (data_frame):
 # Get today´s or yesterday´s file
 def getDataFrame ():
     #url = "https://raw.githubusercontent.com/EduHdzVillasana/COVIDSTATSMX/master/Datos%20Abiertos"
-    url = "../../COVIDSTATSMX/Datos Abiertos"
+    url = "../../../COVIDSTATSMX/Datos Abiertos"
     # Geting the file´s name YYMMDDCOVID19MEXICO.csv
     td = dt.date.today()
     date = str(td)
