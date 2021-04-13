@@ -233,6 +233,15 @@ def createGraph (name, casesBD_df, date):
     plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
     plt.savefig("Graficas/" + date + "/"+ name +" " + date + ".png")
 
+
+def createGraph_ (name, casesBD_df, date):
+    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], unit='ns')
+    plt.figure(figsize = (20,10))
+    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_POSITIVOS"],"r")
+    plt.plot(casesBD_df["FECHA"],casesBD_df["DEFUNCIONES"],"b")
+    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_SOSPECHOSOS"],"g")
+    plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
+
 if __name__ == '__main__':
     sys.path.insert(0,'TweetCOVIDSTATSMX')
     from My_Tweet import My_Tweet
