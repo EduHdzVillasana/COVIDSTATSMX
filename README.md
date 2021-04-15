@@ -1,8 +1,22 @@
 # COVIDSTATSMX
 El objetivo de este proyecto es realizar un análisis de la epidemia de sars-cov-2 en México, se inició en abril del 2020 para practicar el manejo de dataframes y la implementación de modelos de machine learning.
 
+Este proyecto se subdividió en 2, uno enfocandose en extraer datos estadísticos y generar gráficas de los casos de covid-19 para su posterior publicación en una cuenta de [Twitter](https://twitter.com/covidstatsmx) y otro cuyo objetivo es analizar estadísticamente el dataset y generar un modelo predictivo que obtenga la probabilidad de muerte de los pacientes dependiendo de sus características.
 
+## Obtención de los datos
 Los datos usados en este proyecto fueron obtenidos del repositorio de datos abiertos de la [Secretaría de Salud](https://datos.gob.mx/busca/dataset/informacion-referente-a-casos-covid-19-en-mexico)
+
+También está disponible un [dashboard](https://datos.covid-19.conacyt.mx/) donde se muestran diferentes gráficas y datos estadísticos de la pandemia de covid-19 en México.
+
+## Cuenta de Twitter
+En la cuenta de [Twitter](https://twitter.com/covidstatsmx), activa desde octubre del 2020, se publican gráficas de casos positivos, sospechosos y defunciones a lo largo de la pandemia por entidad federativa junto con algunos dátos como mortalidad general, casos positivos, sospechosos y defunciones acumuladas.
+
+*Ejemplo de Tweet (Gráfica y datos nacionales)*
+![image](https://user-images.githubusercontent.com/55162876/114931362-c2791780-9dfb-11eb-8820-fd21a4506d6c.png)
+
+## Análisis y Modelado
+El principal del análisis y el modelado es entender qué factores son los que más influyen en la mortalidad de los pacientes, además de identificar aquellos que están en riesgo de morir o de presentar una enfermedad grave.
+
 
 ## Descripción de los campos.
 * `FECHA_ACTUALIZACION`: Indica la fecha en que se actualizó la información de cada caso.
@@ -42,3 +56,5 @@ Los datos usados en este proyecto fueron obtenidos del repositorio de datos abie
 * `PAIS_NACIONALIDAD`: Indica la nacionalidad del paciente.
 * `PAIS_ORIGEN`: Indica el pais del que partió rumbo a México.
 * `UCI`: Indica si el paciente requirió ingresar a una Unidad de Cuidados Intensivos.
+
+
