@@ -18,8 +18,7 @@ class My_Tweet:
         auth.set_access_token(key_3, key_4 )
 
         # Create API object
-        api = tw.API(auth, wait_on_rate_limit=True,
-            wait_on_rate_limit_notify=True)
+        api = tw.API(auth, wait_on_rate_limit=True)
         media = api.media_upload("Graficas/"+pathImage)     #2020-10-14/NACIONAL.png")
         # Post tweet with image
         tweet = info

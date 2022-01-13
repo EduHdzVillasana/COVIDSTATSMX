@@ -242,7 +242,7 @@ def createGraph_ (name, casesBD_df, date):
     plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_SOSPECHOSOS"],"g")
     plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
 
-if __name__ == '__main__':
+def run_script():
     sys.path.insert(0,'TweetCOVIDSTATSMX')
     from My_Tweet import My_Tweet
     covid_df, update_date = getDataFrame()
@@ -380,3 +380,24 @@ if __name__ == '__main__':
         #states_df = pd.DataFrame(states)
         #print (states_df)
         #saveDataFrame(dataFrame = states_df)
+
+def get_data():
+    import urllib.request
+    import os
+    from zipfile import ZipFile
+
+    url = "http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
+    path = 'C:/Users/alana/Documentos/COVIDSTATSMX/Datos Abiertos/data.zip'
+    folder = 'C:/Users/alana/Documentos/COVIDSTATSMX/Datos Abiertos/'
+    urllib.request.urlretrieve(url, path)
+    with ZipFile(path,'r') as zip:
+        zip.printdir()
+
+        zip.extractall(path=folder)
+
+    os.remove(path = path)
+
+
+if __name__ == '__main__':
+    get_data()
+    run_script()
