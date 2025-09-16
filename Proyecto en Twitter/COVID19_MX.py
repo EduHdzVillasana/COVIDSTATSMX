@@ -6,7 +6,10 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import time
 import sys
-
+import seaborn as sns
+import progressbar
+import warnings
+warnings.filterwarnings('ignore')
 
 # Class to store covid cases by state data
 # Entity = State or City (future)
@@ -102,7 +105,7 @@ def saveDataFrame (path = "C:", name = "DATAFRAME.xls", type = "xls", dataFrame 
         if type == "csv":
             dataFrame.to_csv(os.path.join(path,name))
         elif type == "xls":
-            dataFrame.to_excel(os.path.join(path,name))
+            dataFrame.to_excel(os.path.join(path,name));
         elif type == "json":
             dataFrame.to_json(os.path.join(path,name))
     else:
@@ -171,7 +174,7 @@ def getDateList (today_s):
 def getCasesByDay (covid_df, dates, state = 0, countys = []):
     casesBD = {} # it will be changed to data frame
 
-    covid_df = covid_df[["FECHA_SINTOMAS", "RESULTADO","FECHA_DEF"]][((covid_df["ENTIDAD_RES"] == state)
+    covid_df = covid_df[["FECHA_SINTOMAS", "RESULTADO","FECHA_DEF", "HOSPITALIZADO"]][((covid_df["ENTIDAD_RES"] == state)
     |( state == 0)) 
     & ((covid_df["MUNICIPIO_RES"].isin (countys)) 
     | (len(countys) == 0))]
@@ -181,6 +184,7 @@ def getCasesByDay (covid_df, dates, state = 0, countys = []):
     casesBD ["CASOS_NEGATIVOS"] = []
     casesBD ["CASOS_SOSPECHOSOS"] = []
     casesBD ["DEFUNCIONES"] = []
+    casesBD ["HOSPITALIZACIONES"] = []
     casesBD ["FECHA"] = dates
     #totalCases = len(covid_df)
 
@@ -189,6 +193,7 @@ def getCasesByDay (covid_df, dates, state = 0, countys = []):
     negativesBD = covid_df[covid_df["RESULTADO"] == 2].groupby(["FECHA_SINTOMAS","RESULTADO"])["RESULTADO"].count()
     suspectedsBD = covid_df[covid_df["RESULTADO"] == 3].groupby(["FECHA_SINTOMAS","RESULTADO"])["RESULTADO"].count()
     deceasedsBD = covid_df[(covid_df["RESULTADO"] == 1) & (covid_df["FECHA_DEF"] != "9999-99-99") ].groupby(["FECHA_DEF","RESULTADO"])["RESULTADO"].count()
+    hospitalizedBD = covid_df[(covid_df["HOSPITALIZADO"] == 1) & (covid_df["RESULTADO"] == 1)].groupby(["FECHA_SINTOMAS","RESULTADO"])["RESULTADO"].count()
 
     # The data is filtered and positive cases, negative cases, suspicius cases and confirmed deaths for each day are count
     # For positive, negative and suspicious cases the column "FECHA" represents the day when the symptoms started,
@@ -217,30 +222,102 @@ def getCasesByDay (covid_df, dates, state = 0, countys = []):
         except:
             dec = 0
 
+        try:
+            hos = int(hospitalizedBD[date])
+        except:
+            hos = 0
+
         casesBD["CASOS_POSITIVOS"].append(pos)
         casesBD["CASOS_NEGATIVOS"].append(neg)
         casesBD["CASOS_SOSPECHOSOS"].append(sus)
         casesBD["DEFUNCIONES"].append(dec)
+        casesBD["HOSPITALIZACIONES"].append(hos)
     return casesBD
 
 # Function to create and save graph´s images
+#def createGraph (name, casesBD_df, date):
+#    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], unit='ns')
+#    plt.figure(figsize = (20,10))
+#    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_POSITIVOS"],"r")
+#    plt.plot(casesBD_df["FECHA"],casesBD_df["DEFUNCIONES"],"b")
+#    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_SOSPECHOSOS"],"g")
+#    plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
+#    plt.savefig("Graficas/" + date + "/"+ name +" " + date + ".png")
+
 def createGraph (name, casesBD_df, date):
-    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], unit='ns')
-    plt.figure(figsize = (20,10))
-    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_POSITIVOS"],"r")
-    plt.plot(casesBD_df["FECHA"],casesBD_df["DEFUNCIONES"],"b")
-    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_SOSPECHOSOS"],"g")
-    plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
+    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], format = "%Y-%m-%d")
+    fig = plt.figure(figsize=(20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["CASOS_POSITIVOS"], label = "Casos Positivos", color = "r", ax = ax)
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["DEFUNCIONES"], label = "Defunciones", color = "b", ax = ax)
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["CASOS_SOSPECHOSOS"], label = "Casos Sospechosos", color = "g", ax = ax)
+    ax.set_title(f"GRAFICA {name} {date}")
+    ax.set_ylabel("CASOS")
     plt.savefig("Graficas/" + date + "/"+ name +" " + date + ".png")
 
 
 def createGraph_ (name, casesBD_df, date):
-    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], unit='ns')
-    plt.figure(figsize = (20,10))
-    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_POSITIVOS"],"r")
-    plt.plot(casesBD_df["FECHA"],casesBD_df["DEFUNCIONES"],"b")
-    plt.plot(casesBD_df["FECHA"],casesBD_df["CASOS_SOSPECHOSOS"],"g")
-    plt.title("GRAFICA " + name +" "+ date + "\nCASOS POSITIVOS (ROJO)\nDEFUNCIONES (AZUL)\nCASOS SOSPECHOSOS (VERDE)")
+    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], format = "%Y-%m-%d")
+    fig = plt.figure(figsize=(20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["CASOS_POSITIVOS"], label = "Casos Positivos", color = "r", ax = ax)
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["DEFUNCIONES"], label = "Defunciones", color = "b", ax = ax)
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["CASOS_SOSPECHOSOS"], label = "Casos Sospechosos", color = "g", ax = ax)
+    ax.set_title(f"GRAFICA {name} {date}")
+
+def mortality_rate_graph_ (name, casesBD_df, date):
+    from datetime import datetime
+    from datetime import timedelta
+    cases_by_day = casesBD_df.copy()
+    cases_by_day["FECHA"] = pd.to_datetime(cases_by_day["FECHA"], format = "%Y-%m-%d")
+    cases_by_day["SEMANA"] = cases_by_day["FECHA"].apply(lambda x: int((x - datetime(2020,1,1)).days/7))
+    cases_by_week = cases_by_day.groupby(["SEMANA"]).sum()
+    cases_by_week["MORTALIDAD"] = cases_by_week["DEFUNCIONES"]/cases_by_week["CASOS_POSITIVOS"]
+    cases_by_week["SEMANA"] = cases_by_week.index
+    cases_by_week["DIA"] = cases_by_week["SEMANA"].apply(lambda x: datetime(2020,1,1) + timedelta(days = 7*x))
+    cases_by_week = cases_by_week.drop(columns=["SEMANA"])
+    fig = plt.figure(figsize = (20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = cases_by_week["DIA"], y = cases_by_week["MORTALIDAD"]*100, color = "r", ax = ax)
+    ax.set_title(f"MORTALIDAD POR SEMANA - {name} - {date}")
+    ax.set_ylabel("Mortalidad (%)")
+
+def mortality_rate_graph (name, casesBD_df, date):
+    from datetime import datetime
+    from datetime import timedelta
+    cases_by_day = casesBD_df.copy()
+    cases_by_day["FECHA"] = pd.to_datetime(cases_by_day["FECHA"], format = "%Y-%m-%d")
+    cases_by_day["SEMANA"] = cases_by_day["FECHA"].apply(lambda x: int((x - datetime(2020,1,1)).days/7))
+    cases_by_week = cases_by_day.groupby(["SEMANA"]).sum()
+    cases_by_week["MORTALIDAD"] = cases_by_week["DEFUNCIONES"]/cases_by_week["CASOS_POSITIVOS"]
+    cases_by_week["SEMANA"] = cases_by_week.index
+    cases_by_week["DIA"] = cases_by_week["SEMANA"].apply(lambda x: datetime(2020,1,1) + timedelta(days = 7*x))
+    cases_by_week = cases_by_week.drop(columns=["SEMANA"])
+    fig = plt.figure(figsize = (20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = cases_by_week["DIA"], y = cases_by_week["MORTALIDAD"]*100, color = "r", ax = ax)
+    ax.set_title(f"MORTALIDAD POR SEMANA - {name} - {date}")
+    ax.set_ylabel("Mortalidad (%)")
+    plt.savefig(f"Graficas/{date}/Mortalidad {name} {date}.png")
+
+
+
+def hospitalized_graph (name, casesBD_df, date):
+    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], format = "%Y-%m-%d")
+    fig = plt.figure(figsize=(20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["HOSPITALIZACIONES"], color = "g", ax = ax)
+    ax.set_title(f"GRAFICA DE HOSPITALIZACIONES {date}")
+    ax.set_ylabel(f"HOSPITALIZACIONES {name}")
+    plt.savefig(f"Graficas/{date}/Hospitalizaciones {name} {date}.png")
+
+def hospitalized_graph_ (name, casesBD_df, date):
+    casesBD_df["FECHA"] = pd.to_datetime(casesBD_df["FECHA"], format = "%Y-%m-%d")
+    fig = plt.figure(figsize=(20,10))
+    ax = fig.add_subplot()
+    sns.lineplot(x = casesBD_df["FECHA"], y = casesBD_df["HOSPITALIZACIONES"], color = "g", ax = ax)
+    ax.set_title(f"GRAFICA DE HOSPITALIZACIONES {date}")
+    ax.set_ylabel(f"HOSPITALIZACIONES {name}")
 
 def run_script():
     sys.path.insert(0,'TweetCOVIDSTATSMX')
@@ -248,13 +325,14 @@ def run_script():
     covid_df, update_date = getDataFrame()
     if (covid_df is not None):
         dates = getDateList(update_date)
-        os.makedirs("Graficas/" + update_date, exist_ok=True)
+        os.makedirs("Graficas/" + update_date, exist_ok=True) #Create folders
         os.makedirs("Casos_Por_Dia/" + update_date, exist_ok=True)
 
         cbd = "Casos_Por_Dia/" + update_date # Cases by day folder path
         
         # Add a result column in the main data frame summarizing the "CLASIFICACION_FINAL" column
         covid_df["RESULTADO"] = covid_df["CLASIFICACION_FINAL"].apply(getResult)
+        covid_df["HOSPITALIZADO"] = covid_df["TIPO_PACIENTE"].apply(lambda x: 1 if x == 2 else 0)
 
         # National View
         cCases =  getComulativeCases(covid_df)
@@ -276,10 +354,13 @@ def run_script():
         saveDataFrame(path = cbd,
         name = update_date +"-NACIONAL.xls",
         type = "xls",
-        dataFrame = casesBD_df)
+        dataFrame = casesBD_df);
 
         createGraph("NACIONAL", casesBD_df, update_date)
         print("Grafica Nacional Guardada")
+        hospitalized_graph("NACIONAL", casesBD_df, update_date)
+        print("Grafica Hospitalizaciones Guardada")
+        mortality_rate_graph("NACIONAL", casesBD_df[:-7], update_date)
 
         # Get Cases by day for each state
         population = pd.read_csv("Poblacion/Poblacion.csv")
@@ -303,7 +384,7 @@ def run_script():
             saveDataFrame(path = cbd,
             name = update_date +"-"+STATE+".xls",
             type = "xls",
-            dataFrame = statesDict[STATE])
+            dataFrame = statesDict[STATE]);
 
             createGraph(STATE,statesDict[STATE],update_date)
             plt.close()
@@ -377,9 +458,33 @@ def run_script():
         imagepath = update_date+"/"+national.name+" "+update_date+".png"
         time.sleep(5)
         My_Tweet.post(info,imagepath)
+
+        info = f"Hospitalizaciones por #COVID19 en {national.ht} al {day}/{month}/{year}"
+        #Hospitalizaciones {name} {date}.png
+        imagepath = f"{update_date}/Hospitalizaciones {national.name} {update_date}.png"
+        My_Tweet.post(info,imagepath)
+
+        info = f"Mortalidad por #COVID19 por semanas en {national.ht} al {day}/{month}/{year}"
+        imagepath = f"{update_date}/Mortalidad {national.name} {update_date}.png"
+        My_Tweet.post(info,imagepath)
+        
+        print("Graficas Nacionales listas")
         #states_df = pd.DataFrame(states)
         #print (states_df)
         #saveDataFrame(dataFrame = states_df)
+
+def show_progress(block_num, block_size, total_size):
+    global pbar
+    if pbar is None:
+        pbar = progressbar.ProgressBar(maxval=total_size)
+        pbar.start()
+
+    downloaded = block_num * block_size
+    if downloaded < total_size:
+        pbar.update(downloaded)
+    else:
+        pbar.finish()
+        pbar = None
 
 def get_data():
     import urllib.request
@@ -389,15 +494,20 @@ def get_data():
     url = "http://datosabiertos.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip"
     path = 'C:/Users/alana/Documentos/COVIDSTATSMX/Datos Abiertos/data.zip'
     folder = 'C:/Users/alana/Documentos/COVIDSTATSMX/Datos Abiertos/'
-    urllib.request.urlretrieve(url, path)
+    global pbar
+    pbar = None
+    print("Descargando")
+    urllib.request.urlretrieve(url, path, show_progress)
+    print("Descomprimiendo")
     with ZipFile(path,'r') as zip:
         zip.printdir()
 
         zip.extractall(path=folder)
 
     os.remove(path = path)
+    print("Archivo obtenido")
 
 
 if __name__ == '__main__':
-    get_data()
+    #get_data()
     run_script()
